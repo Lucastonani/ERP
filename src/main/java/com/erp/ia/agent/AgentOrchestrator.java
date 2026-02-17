@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Orchestrates the full agent lifecycle:
@@ -21,7 +22,10 @@ import org.springframework.stereotype.Service;
  * 3. ContextAssembler executes tools, collects Evidence
  * 4. Agent.synthesize() → response + ActionPlan
  * 5. PolicyEngine validates ActionPlan
- * 6. DecisionLog records everything
+ * 6. DecisionLog records everything (with children persisted in same TX)
+ *
+ * IMPORTANT: This method is @Transactional so the DecisionLog and its
+ * children (tool calls, policy results) are all persisted atomically.
  */
 @Service
 public class AgentOrchestrator {
@@ -46,6 +50,7 @@ public class AgentOrchestrator {
         this.objectMapper = objectMapper;
     }
 
+    @Transactional
     public AgentResponse process(AgentRequest request) {
         String correlationId = request.correlationId() != null
                 ? request.correlationId()
@@ -78,14 +83,13 @@ public class AgentOrchestrator {
             log.info("Policy result: {}", policyResult.status());
         }
 
-        // 6. Log decision
+        // 6. Log decision — parent saved first
         String actionPlanJson = serializeSafe(response.actionPlan());
         String inputDataJson = serializeSafe(request.context());
-        String evidenceJson = serializeSafe(context.getEvidences());
 
         DecisionLog decisionLog = decisionLogService.logDecision(
                 agent.getName(), request.intent(), correlationId,
-                null, null, // prompt info filled by agent if needed
+                null, null, // prompt info — will carry real data when LLM integration is live
                 inputDataJson, null, null,
                 actionPlanJson, request.tenantId(), request.storeId());
 
@@ -102,19 +106,35 @@ public class AgentOrchestrator {
             decisionLog.addPolicyResult(pr);
         }
 
+        // If policy blocked, set REJECTED and strip ActionPlan from response
         if (!policyResult.isPass()) {
             decisionLog.setStatus(DecisionLog.DecisionStatus.REJECTED);
         }
 
-        // Save with children
-        decisionLogService.findById(decisionLog.getId()); // trigger save via managed entity
+        // Explicit save — guarantees children (toolCalls, policyResults) and status are
+        // persisted
+        decisionLogService.save(decisionLog);
 
         log.info("Decision logged: {} [status={}]", decisionLog.getId(), decisionLog.getStatus());
 
-        // Return response with audit ID
+        // 7. Build safe response — if policy blocked, DO NOT leak ActionPlan to client
+        ActionPlan safePlan;
+        String safeMessage;
+
+        if (policyResult.isPass()) {
+            safePlan = response.actionPlan();
+            safeMessage = response.response();
+        } else {
+            safePlan = ActionPlan.empty("Ação bloqueada por políticas");
+            safeMessage = "Ação bloqueada por políticas: "
+                    + String.join("; ", policyResult.reasons());
+            log.warn("ActionPlan stripped from response — policy BLOCKED [decision={}]",
+                    decisionLog.getId());
+        }
+
         return new AgentResponse(
-                response.response(),
-                response.actionPlan(),
+                safeMessage,
+                safePlan,
                 response.evidence(),
                 decisionLog.getId());
     }

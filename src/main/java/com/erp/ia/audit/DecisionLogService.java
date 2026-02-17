@@ -41,6 +41,11 @@ public class DecisionLogService {
         return repository.save(log);
     }
 
+    @Transactional
+    public DecisionLog save(DecisionLog decisionLog) {
+        return repository.save(decisionLog);
+    }
+
     public Optional<DecisionLog> findById(String id) {
         return repository.findById(id);
     }

@@ -14,6 +14,11 @@ import java.util.stream.Collectors;
  * Validates LLM output against a typed contract (DTO + Bean Validation).
  * If invalid, returns null for the caller to handle (log OUTPUT_INVALID,
  * optional repair).
+ *
+ * Handles common LLM output quirks:
+ * - Markdown code fences (```json ... ```)
+ * - Explanatory text before/after JSON
+ * - Extra whitespace
  */
 @Component
 public class LlmOutputValidator {
@@ -39,14 +44,10 @@ public class LlmOutputValidator {
             return null;
         }
 
-        // Strip markdown code fences if present
-        String cleaned = llmOutput.strip();
-        if (cleaned.startsWith("```")) {
-            int firstNewline = cleaned.indexOf('\n');
-            int lastFence = cleaned.lastIndexOf("```");
-            if (firstNewline > 0 && lastFence > firstNewline) {
-                cleaned = cleaned.substring(firstNewline + 1, lastFence).strip();
-            }
+        String cleaned = extractJson(llmOutput);
+        if (cleaned == null) {
+            log.warn("No JSON found in LLM output for {}", contractClass.getSimpleName());
+            return null;
         }
 
         try {
@@ -67,5 +68,64 @@ public class LlmOutputValidator {
             log.warn("Failed to parse LLM output as {}: {}", contractClass.getSimpleName(), e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * Extracts JSON from LLM output, handling:
+     * 1. Markdown code fences: ```json\n{...}\n```
+     * 2. Text before/after JSON: "Here is the result: {...} Hope that helps!"
+     * 3. Clean JSON as-is
+     */
+    String extractJson(String raw) {
+        String stripped = raw.strip();
+
+        // Strategy 1: Strip markdown code fences
+        if (stripped.startsWith("```")) {
+            int firstNewline = stripped.indexOf('\n');
+            int lastFence = stripped.lastIndexOf("```");
+            if (firstNewline > 0 && lastFence > firstNewline) {
+                return stripped.substring(firstNewline + 1, lastFence).strip();
+            }
+        }
+
+        // Strategy 2: Already clean JSON object or array
+        if (stripped.startsWith("{") || stripped.startsWith("[")) {
+            return stripped;
+        }
+
+        // Strategy 3: Extract first JSON object {...} from surrounding text
+        int braceStart = stripped.indexOf('{');
+        int bracketStart = stripped.indexOf('[');
+
+        int start = -1;
+        char openChar;
+        char closeChar;
+
+        if (braceStart >= 0 && (bracketStart < 0 || braceStart < bracketStart)) {
+            start = braceStart;
+            openChar = '{';
+            closeChar = '}';
+        } else if (bracketStart >= 0) {
+            start = bracketStart;
+            openChar = '[';
+            closeChar = ']';
+        } else {
+            return null; // no JSON structure found
+        }
+
+        // Find the matching closing bracket (handle nesting)
+        int depth = 0;
+        for (int i = start; i < stripped.length(); i++) {
+            char c = stripped.charAt(i);
+            if (c == openChar)
+                depth++;
+            else if (c == closeChar)
+                depth--;
+            if (depth == 0) {
+                return stripped.substring(start, i + 1);
+            }
+        }
+
+        return null; // unbalanced brackets
     }
 }

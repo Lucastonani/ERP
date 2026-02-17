@@ -33,8 +33,8 @@ Natural Language → Agent Layer → Context Assembly → LLM → Policy Engine 
 
 - **Java 21** (LTS) + **Spring Boot 3.4.2**
 - **PostgreSQL** (prod) / **H2** (dev/test)
-- **Flyway** migrations
-- **Spring Security** (JWT/RBAC-ready, toggleable)
+- **Flyway** migrations (+ prompt seeds)
+- **Spring Security** (basic auth for MVP; JWT planned for production)
 - **Swagger/OpenAPI** via Springdoc
 - **JUnit 5** + **Mockito** + **Testcontainers** (ready)
 

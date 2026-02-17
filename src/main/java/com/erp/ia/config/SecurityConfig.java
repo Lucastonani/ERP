@@ -8,6 +8,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Security configuration.
+ *
+ * MVP STATUS: JWT is NOT implemented yet.
+ * - security.enabled=false (dev/test): all endpoints are open
+ * - security.enabled=true (production): endpoints require authentication
+ * via Spring's default basic auth (in-memory UserDetailsService).
+ *
+ * TODO: Replace with a real JwtAuthenticationFilter for production.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -23,13 +33,13 @@ public class SecurityConfig {
             // Dev/test: allow all
             http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         } else {
-            // Production: require authentication
+            // Production: require authentication (currently basic auth, NOT JWT)
+            // TODO: Add JwtAuthenticationFilter before UsernamePasswordAuthenticationFilter
             http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/swagger-ui/**", "/api-docs/**", "/actuator/**").permitAll()
                             .requestMatchers("/api/v1/**").authenticated()
                             .anyRequest().permitAll());
-            // JWT filter would be added here in production
         }
 
         return http.build();

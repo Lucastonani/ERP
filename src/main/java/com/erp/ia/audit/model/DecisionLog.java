@@ -61,7 +61,7 @@ public class DecisionLog {
     private String storeId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt = Instant.now();
+    private Instant createdAt;
 
     @OneToMany(mappedBy = "decisionLog", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DecisionToolCall> toolCalls = new ArrayList<>();
@@ -70,6 +70,13 @@ public class DecisionLog {
     private List<DecisionPolicyResult> policyResults = new ArrayList<>();
 
     public DecisionLog() {
+    }
+
+    @PrePersist
+    void prePersist() {
+        if (this.createdAt == null) {
+            this.createdAt = Instant.now();
+        }
     }
 
     public void addToolCall(DecisionToolCall toolCall) {

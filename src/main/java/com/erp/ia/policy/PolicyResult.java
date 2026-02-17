@@ -13,6 +13,16 @@ public record PolicyResult(
         return "PASS".equals(status);
     }
 
+    /**
+     * Extracts human-readable reasons from blocked rule results.
+     */
+    public List<String> reasons() {
+        return ruleResults.stream()
+                .filter(r -> "BLOCKED".equals(r.getResult()))
+                .map(r -> r.getRuleName() + ": " + r.getReason())
+                .toList();
+    }
+
     public static PolicyResult pass() {
         return new PolicyResult("PASS", List.of());
     }

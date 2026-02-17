@@ -6,7 +6,9 @@ import com.erp.ia.agent.model.AgentResponse;
 import com.erp.ia.audit.DecisionLogService;
 import com.erp.ia.audit.model.DecisionLog;
 import com.erp.ia.core.model.Product;
+import com.erp.ia.core.model.PurchaseOrder;
 import com.erp.ia.core.model.Stock;
+import com.erp.ia.core.repository.PurchaseOrderRepository;
 import com.erp.ia.core.repository.ProductRepository;
 import com.erp.ia.core.repository.StockRepository;
 import com.erp.ia.execution.ActionExecutor;
@@ -38,6 +40,8 @@ class AgentLifecycleIntegrationTest {
     private ProductRepository productRepository;
     @Autowired
     private StockRepository stockRepository;
+    @Autowired
+    private PurchaseOrderRepository purchaseOrderRepository;
 
     @BeforeEach
     void seedData() {
@@ -105,5 +109,35 @@ class AgentLifecycleIntegrationTest {
 
         assertNotNull(response);
         assertNotNull(response.auditId());
+    }
+
+    @Test
+    void fullLifecycleCreatesRealPurchaseOrder() {
+        // 1. Suggest (reorder → creates ActionPlan with DRAFT_PURCHASE_ORDER)
+        AgentRequest request = new AgentRequest(
+                "reorder", Map.of(), "default", "default", "test-corr-e2e", "admin");
+
+        AgentResponse response = orchestrator.process(request);
+        assertNotNull(response);
+        assertNotNull(response.auditId());
+        assertTrue(response.actionPlan().hasActions());
+
+        // 2. Approve
+        DecisionLog approved = decisionLogService.approve(response.auditId(), "manager");
+        assertEquals(DecisionLog.DecisionStatus.APPROVED, approved.getStatus());
+
+        // 3. Execute
+        var results = actionExecutor.execute(response.auditId(), "manager");
+        assertFalse(results.isEmpty());
+        assertTrue(results.stream().allMatch(r -> r.isSuccess()),
+                "All action results should be SUCCESS");
+
+        // 4. Verify decision status updated to EXECUTED
+        DecisionLog executed = decisionLogService.findById(response.auditId()).orElseThrow();
+        assertEquals(DecisionLog.DecisionStatus.EXECUTED, executed.getStatus());
+
+        // 5. Verify PurchaseOrder was actually persisted in the database
+        var drafts = purchaseOrderRepository.findByStatus(PurchaseOrder.OrderStatus.DRAFT);
+        assertFalse(drafts.isEmpty(), "At least one DRAFT PurchaseOrder should exist after execution");
     }
 }

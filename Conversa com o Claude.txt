@@ -1,9 +1,964 @@
+Prompt inicial:
+
+Você é uma IA atuando como Arquiteto-chefe de software enterprise, especialista em ERP e em sistemas baseados em agentes.
+
+Sua missão é PROJETAR E IMPLEMENTAR (em nível de arquitetura + código inicial) um ERP 100% IA-FIRST do zero, sem herdar vícios de ERP tradicional.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STACK OBRIGATÓRIA (JAVA)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Linguagem: Java 21 (LTS)
+Build: Maven (padrão) ou Gradle (se justificar)
+Backend: Spring Boot 3.x
+Persistência: PostgreSQL (produção) + H2 (testes)
+Migrações: Flyway
+Mensageria/eventos: Kafka (produção) + alternativa leve (ex.: in-memory) para dev
+Observabilidade: OpenTelemetry + logs estruturados
+Testes: JUnit 5 + Testcontainers
+Segurança: Spring Security (JWT + RBAC)
+Documentação API: OpenAPI/Swagger
+
+Integração com LLM:
+- Deve existir uma camada “LLM Provider” com interface (porta) e implementações:
+  (1) Cloud (OpenAI/Anthropic/Google) via HTTP
+  (2) Local via Ollama ou servidor compatível (se justificar)
+- NUNCA acople o core a um provedor único.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REGRAS IA-FIRST (NÃO NEGOCIÁVEIS)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- IA é o cérebro. O core ERP é transacional (system of record).
+- Agentes tomam decisões; core executa transações determinísticas.
+- Separar “sugerir” vs “executar” com aprovações e auditoria.
+- Toda decisão de IA deve gerar um registro auditável: prompt_version + dados usados + ferramenta chamada + resposta + avaliação/validação.
+- Prompts são lógica viva: versionados, testáveis e com rollback.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ENTREGÁVEIS OBRIGATÓRIOS (EM JAVA)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1) Arquitetura detalhada (camadas e responsabilidades) aplicada ao código Java.
+2) Estrutura completa de pastas do projeto (monorepo backend), com explicação.
+3) Modelagem dos módulos mínimos:
+   - Core transacional (produtos, estoque, movimentos, compras/pedidos)
+   - Camada de eventos (event bus + schema)
+   - Camada de agentes (agent runtime/orchestrator)
+   - Motor de prompts (prompt registry versionado)
+   - Auditoria de decisões (decision log)
+   - Tooling (funções que agentes chamam)
+4) Código inicial funcional (compilável) contendo:
+   - Spring Boot app
+   - Entidades JPA principais (mínimo viável)
+   - Repositórios + serviços
+   - Endpoint REST “/chat” (ou “/agent”) que recebe uma intenção e retorna:
+     (a) resposta natural
+     (b) plano de ações pro core
+     (c) evidências (dados consultados)
+     (d) id do log de auditoria
+   - Event publisher/subscriber mínimo (pode ser in-memory no dev)
+   - Implementação do PromptRegistry (com versão e armazenamento em banco)
+   - Implementação do DecisionLog (em banco)
+5) Testes:
+   - Pelo menos 10 testes unitários do motor de agentes e do PromptRegistry
+   - Pelo menos 3 testes de integração com Testcontainers (Postgres)
+6) README com:
+   - Como rodar
+   - Como rodar testes
+   - Como trocar provedor LLM
+   - Como adicionar um novo agente
+   - Como versionar um prompt com rollback
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MODO DE TRABALHO (PASSO A PASSO)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Você deve trabalhar em fases e entregar tudo em ordem:
+
+Fase 1 — Documento de arquitetura (IA-first) + diagramas textuais
+Fase 2 — Estrutura de projeto + módulos + contratos/interfaces
+Fase 3 — Código inicial completo (arquivos com conteúdo)
+Fase 4 — Testes + README
+Fase 5 — Checklist de próximos tickets
+
+REGRAS:
+- Não pule fases.
+- Não invente bibliotecas aleatórias. Use o stack definido.
+- Se algo for opcional, apresente 2 opções com trade-offs e escolha 1.
+- Prefira designs simples e robustos.
+- Tudo precisa estar orientado a auditoria, segurança e evolução.
+
+
+
+Você é uma inteligência artificial atuando como:
+
+• Arquiteto-chefe de software enterprise
+• Especialista em sistemas ERP
+• Especialista em sistemas baseados em agentes de IA
+• Especialista em arquitetura IA-first
+• Engenheiro de software sênior com foco em sistemas críticos de negócio
+• Especialista em governança, auditoria e segurança de IA
+
+Sua missão é CONCEBER, ARQUITETAR e DETALHAR um ERP 100% IA-FIRST,
+pensado DO ZERO, sem herdar conceitos, estruturas mentais ou limitações
+de ERPs tradicionais baseados em telas, formulários e workflows rígidos.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧠 PRINCÍPIO FUNDAMENTAL (OBRIGATÓRIO)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• IA NÃO é um recurso adicional
+• IA NÃO é um chatbot “em cima” do ERP
+• IA NÃO é automação superficial
+
+👉 IA É O CÉREBRO DO SISTEMA
+👉 O ERP é apenas o corpo transacional
+
+Toda decisão, fluxo, recomendação e planejamento
+deve nascer da IA, respeitando limites técnicos e legais.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 OBJETIVO DO SISTEMA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Criar um ERP que:
+• Tome decisões assistidas ou autônomas
+• Explique todas as decisões de forma auditável
+• Seja operado primariamente por linguagem natural
+• Use prompts como lógica de negócio viva
+• Seja adaptável sem reprogramação constante
+• Seja confiável, seguro e juridicamente auditável
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏗️ O QUE VOCÊ DEVE ENTREGAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Estruture a resposta nos blocos abaixo,
+com explicações claras, exemplos práticos e decisões justificadas.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1️⃣ VISÃO GERAL DO ERP IA-FIRST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• Defina claramente o que diferencia este ERP
+• Explique por que ele NÃO é um ERP tradicional com IA
+• Descreva a mudança de paradigma (software → sistema cognitivo)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2️⃣ ARQUITETURA GERAL DO SISTEMA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Descreva a arquitetura em camadas, incluindo:
+
+• Interface cognitiva (conversacional)
+• Camada de agentes de IA
+• Motor de prompts empresariais versionados
+• Core transacional mínimo (system of record)
+• Camada de dados e eventos
+• Governança, auditoria e segurança
+
+Explique:
+• O papel de cada camada
+• O que pertence à IA e o que NÃO pode ser IA
+• Como as camadas se comunicam
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3️⃣ SISTEMA BASEADO EM AGENTES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Modele o ERP como um conjunto de agentes especializados.
+
+Para cada agente, descreva:
+• Responsabilidade
+• Objetivos
+• Limites
+• Dados que consome
+• Decisões que pode tomar
+• Decisões que exigem validação humana
+
+Inclua exemplos como:
+• Agente de Estoque
+• Agente de Compras
+• Agente Financeiro
+• Agente Comercial
+• Agente Auditor / Compliance
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4️⃣ PROMPTS COMO LÓGICA DE NEGÓCIO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Explique como os prompts substituem regras fixas.
+
+Detalhe:
+• Estrutura de um prompt empresarial
+• Como versionar prompts
+• Como auditar decisões baseadas em prompt
+• Como testar prompts (testes automatizados)
+
+Inclua exemplos reais de prompts de agentes.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5️⃣ CORE TRANSACIONAL (ERP MÍNIMO)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Defina claramente:
+• Quais módulos são puramente transacionais
+• O que deve ser determinístico
+• O que jamais deve ser decidido pela IA
+
+Explique como o core serve à IA
+e não o contrário.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6️⃣ DADOS, EVENTOS E CONTEXTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Descreva:
+• Uso de arquitetura orientada a eventos
+• Como eventos disparam agentes
+• Como contexto é montado dinamicamente
+• Como evitar “decisão cega”
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7️⃣ GOVERNANÇA, AUDITORIA E SEGURANÇA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Este bloco é OBRIGATÓRIO.
+
+Descreva:
+• Log completo de decisões
+• Explicabilidade obrigatória
+• Rastreabilidade (dados + prompt + versão)
+• Permissões e limites por agente
+• Controles contra alucinação
+• Separação entre sugerir e executar
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8️⃣ EXPERIÊNCIA DO USUÁRIO (SEM TELAS TRADICIONAIS)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Explique como o usuário interage:
+• Conversa
+• Perguntas
+• Simulações
+• Aprovações
+
+Mostre exemplos reais de uso:
+• “Simule um pedido conservador”
+• “Por que esse SKU entrou no pedido?”
+• “O que acontece se eu reduzir o orçamento?”
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+9️⃣ COMPARAÇÃO COM ERP TRADICIONAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Crie uma tabela comparativa clara entre:
+• ERP Clássico
+• ERP IA-FIRST
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔟 EVOLUÇÃO E ESCALABILIDADE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Explique:
+• Como o sistema aprende
+• Como novos agentes surgem
+• Como o ERP evolui sem reescrita
+• Como funciona IA local + nuvem (híbrido)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 REGRAS ABSOLUTAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• NÃO reutilize estruturas mentais de ERP tradicional
+• NÃO priorize telas, formulários ou CRUDs
+• NÃO trate IA como “feature”
+• NÃO seja superficial
+• EXPLIQUE TODAS AS DECISÕES ARQUITETURAIS
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧠 MENTALIDADE FINAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Pense como alguém projetando:
+• Um organismo cognitivo empresarial
+• Um sistema que pensa antes de executar
+• Um ERP que evolui por linguagem, não por código
+
+Entregue a resposta de forma clara, estruturada e profunda.
+
+A interface principal do produto é conversacional; telas são derivadas do chat, não o contrário.
+Qualquer endpoint que pareça CRUD deve ser justificado como parte do system of record.
+
 Resposta do Claude:
 
+Thought for 6s
+This is a massive request to design and implement an AI-first ERP system from scratch in Java. Let me break this down into phases as requested:
+
+1. Architecture document
+2. Project structure + modules + interfaces
+3. Initial working code
+4. Tests + README
+5. Next tickets checklist
+
+Let me start by creating a task.md to track progress, then begin with Phase 1 - the architecture document.
+This is a very large undertaking. Let me plan this carefully.
+First, let me check the existing workspace to understand what's already there.
+
+Planning AI-First ERP Architecture
+Created task tracker. Workspace is empty, ready for greenfield project.
+
+Files Edited
+Implementation Plan
+Task
+
+Progress Updates
+
+1. Analyzing workspace and creating task breakdown
+
+Analyzed c:\Users\lucas\IdeaProjects\ERP
+
+The workspace is empty - perfect, we're starting from scratch. Let me create the task breakdown and implementation plan.
+
+Created Task
+Now let me create the comprehensive implementation plan:
+
+2. Writing implementation plan with architecture details and verification strategy
+
+Created Implementation Plan
+
+Criei o plano de implementação para o ERP IA-First. Ele cobre:
+
+1. Arquitetura em 6 camadas — Interface cognitiva, Agentes, Motor de Prompts, LLM Provider, Core Transacional, Governança
+2. Estrutura completa de pastas do monorepo Maven/Spring Boot
+3. Todos os módulos — entidades JPA, agentes, prompt registry, decision log, event bus, tooling, segurança JWT
+4. Plano de verificação — 11 testes unitários + 3 testes de integração com Testcontainers
+
+Algumas decisões-chave no plano:
+
+Hexagonal Architecture — core domain sem dependência de LLM ou framework web
+Suggest vs Execute — agentes retornam ActionPlan (sugestão), execução só após aprovação
+Prompts como código — versionados em banco com rollback via Flyway
+InMemoryEventBus para dev — substituível por Kafka em produção via profile
+
+Revise o plano e me diga se posso prosseguir com a implementação, ou se há ajustes a fazer.
+
+ERP IA-First — Implementation Plan (v3 — Final)
+Overview
+Greenfield AI-first ERP — Java 21 / Spring Boot 3.x. IA is the brain; ERP is the transactional body. This is the final blueprint before implementation.
+
+IMPORTANT
+
+v3 adds: explicit approve/execute endpoints, ActionExecutor with idempotency, structured audit tables, typed ActionParams, LLM output contract validation, Correlation ID, multi-tenant scope, PromptTemplate lifecycle.
+
+1 — Architecture (9 Layers)
+
+#	Layer	Role
+1	Cognitive Interface	REST endpoints: suggest, approve, execute
+2	Agent Layer	Orchestrator + agents with Plan → Synthesize
+3	Context Assembly	Typed Evidence, ContextSnapshot
+4	Prompt Engine	Versioned prompts with lifecycle (DRAFT/ACTIVE/DEPRECATED)
+5	LLM Provider	Port + adapters, resilient (timeout/retry/CB), output contract validation
+6	Policy / Guardrails	Validates ActionPlan against rules
+7	Execution Engine	ActionExecutor + handlers, idempotent, transactional
+8	Transactional Core	JPA entities, deterministic logic
+9	Event Bus	Typed events with schema version
+—	Governance	DecisionLog with structured tool_calls + policies tables
+2 — Project Structure
+ERP/
+├── pom.xml
+├── README.md
+├── src/main/java/com/erp/ia/
+│   ├── ErpIaApplication.java
+│   ├── config/
+│   │   ├── SecurityConfig.java          # JWT + RBAC + action permissions
+│   │   ├── JwtTokenProvider.java
+│   │   ├── CorrelationIdFilter.java     # X-Correlation-Id → MDC
+│   │   └── EventBusConfig.java
+│   ├── core/
+│   │   ├── model/                       # Product, Stock, StockMovement, PurchaseOrder, PurchaseOrderItem
+│   │   ├── repository/
+│   │   └── service/
+│   ├── agent/
+│   │   ├── model/                       # AgentRequest (tenantId, storeId), AgentResponse, ActionPlan
+│   │   │   ├── PlannedAction.java       # typed: PlannedAction<T extends ActionParams>
+│   │   │   ├── ActionType.java          # enum
+│   │   │   ├── RiskLevel.java           # enum
+│   │   │   └── params/                  # DraftPurchaseOrderParams, AdjustStockParams...
+│   │   ├── AgentDefinition.java         # plan() + synthesize()
+│   │   ├── AgentOrchestrator.java
+│   │   ├── AgentRegistry.java
+│   │   └── impl/                        # InventoryAgent, PurchasingAgent, AuditorAgent
+│   ├── context/
+│   │   ├── ContextAssembler.java
+│   │   ├── ContextSnapshot.java
+│   │   └── Evidence.java
+│   ├── prompt/
+│   │   ├── model/PromptTemplate.java    # + status (DRAFT/ACTIVE/DEPRECATED), effectiveFrom, changeNote
+│   │   ├── PromptRepository.java
+│   │   └── PromptRegistryService.java
+│   ├── llm/
+│   │   ├── LlmPort.java
+│   │   ├── LlmRequest.java / LlmResponse.java
+│   │   ├── LlmOutputValidator.java      # validates LLM output against contract (Bean Validation)
+│   │   ├── CloudLlmProvider.java        # timeout + retry + circuit-breaker
+│   │   └── OllamaLlmProvider.java
+│   ├── policy/
+│   │   ├── PolicyEngine.java
+│   │   ├── PolicyRule.java
+│   │   ├── PolicyResult.java
+│   │   └── rules/                       # ApprovalRequired, SpendingLimit, EvidenceRequired
+│   ├── execution/
+│   │   ├── ActionExecutor.java          # routes ActionType → handler, checks idempotency
+│   │   ├── ActionHandler.java           # interface
+│   │   ├── ExecutionResult.java
+│   │   ├── model/ExecutedAction.java    # JPA: idempotencyKey, status, executedAt, auditId
+│   │   └── handlers/                    # DraftPurchaseOrderHandler, AdjustStockHandler
+│   ├── event/
+│   │   ├── DomainEvent.java             # abstract + eventVersion
+│   │   ├── EventBus.java / InMemoryEventBus.java
+│   │   └── model/                       # StockLevelChanged, PurchaseOrderDrafted, DecisionApproved
+│   ├── audit/
+│   │   ├── model/
+│   │   │   ├── DecisionLog.java         # main record
+│   │   │   ├── DecisionToolCall.java    # 1:N structured tool call record
+│   │   │   └── DecisionPolicyResult.java # 1:N structured policy result
+│   │   ├── DecisionLogRepository.java
+│   │   └── DecisionLogService.java
+│   ├── tool/
+│   │   ├── AgentTool.java               # AgentTool<I,O>
+│   │   ├── ToolExecutor.java            # validate + log + timeout
+│   │   ├── ToolRegistry.java
+│   │   ├── StockQueryTool.java + dto/
+│   │   └── ProductQueryTool.java + dto/
+│   └── web/
+│       ├── AgentController.java         # POST /agent
+│       └── ActionController.java        # POST /actions/{id}/approve, /execute
+├── src/main/resources/
+│   ├── application.yml
+│   ├── application-dev.yml
+│   ├── application-test.yml
+│   └── db/migration/
+│       ├── V1__core_schema.sql
+│       ├── V2__prompt_schema.sql
+│       ├── V3__audit_schema.sql         # decision_logs + decision_tool_calls + decision_policy_results
+│       └── V4__execution_schema.sql     # executed_actions (idempotency)
+└── src/test/java/com/erp/ia/
+    ├── agent/                           # Orchestrator, InventoryAgent, PurchasingAgent
+    ├── prompt/                          # Registry, versioning, golden tests
+    ├── policy/                          # PolicyEngine rules
+    ├── execution/                       # ActionExecutor, idempotency
+    ├── audit/                           # DecisionLog
+    ├── tool/                            # Typed tools
+    ├── event/                           # EventBus
+    └── integration/                     # Testcontainers: endpoint, prompt, decision log
+3 — Key Changes (v2 → v3)
+3.1 — Explicit Approve/Execute Endpoints
+POST /api/v1/agent              → AgentResponse (actionPlan + auditId)
+POST /api/v1/actions/{id}/approve → ApprovalResult (approvedBy, timestamp)
+POST /api/v1/actions/{id}/execute → ExecutionResult (SUCCESS/FAILED + outputs)
+3.2 — Execution Engine (idempotent)
+java
+public class ActionExecutor {
+    ExecutionResult execute(UUID auditId, String executedBy);
+    // checks idempotencyKey → if already executed, returns cached result
+    // routes ActionType → ActionHandler
+    // wraps in @Transactional
+}
+public interface ActionHandler<T extends ActionParams> {
+    ActionType getType();
+    ExecutionResult handle(T params);
+}
+DB table executed_actions: (idempotency_key UNIQUE, audit_id, status, result_json, executed_by, executed_at)
+
+3.3 — Structured Audit Tables
+decision_tool_calls (decision_log_id FK, tool_name, input_json, output_json, duration_ms, timestamp)
+decision_policy_results (decision_log_id FK, rule_name, result [PASS/BLOCKED], reason, timestamp)
+3.4 — Typed ActionParams
+java
+public abstract class ActionParams { }
+public class DraftPurchaseOrderParams extends ActionParams {
+    @NotNull private String supplierId;
+    @NotEmpty private List<OrderItemParam> items;
+}
+public class AdjustStockParams extends ActionParams {
+    @NotNull private Long productId;
+    @NotNull private Integer quantity;
+    @NotBlank private String reason;
+}
+3.5 — LLM Output Contract Validation
+java
+public class LlmOutputValidator {
+    <T> T validateAndParse(String llmOutput, Class<T> contractClass);
+    // 1. Parse JSON → T
+    // 2. Bean Validation
+    // 3. If invalid → log OUTPUT_INVALID → try repair (1 attempt) → or fail safe
+}
+3.6 — Correlation ID (end-to-end)
+CorrelationIdFilter: reads X-Correlation-Id header (or generates UUID)
+Sets in MDC → propagates to all log lines, DecisionLog, Events, ToolCalls
+AgentRequest, DecisionLog, DomainEvent all carry correlationId
+3.7 — Multi-Tenant Scope
+java
+public class AgentRequest {
+    private String tenantId;     // company scope
+    private String storeId;      // warehouse/store scope
+    private String intent;
+    private Map<String,Object> context;
+    private String correlationId;
+}
+MVP: single tenant hardcoded, but contracts ready.
+
+3.8 — PromptTemplate Lifecycle
+java
+public class PromptTemplate {
+    // existing: id, name, version, content, variables
+    private PromptStatus status;      // DRAFT, ACTIVE, DEPRECATED
+    private Instant effectiveFrom;
+    private String changeNote;
+}
+4 — Test Plan (Final)
+Unit Tests (≥15) — mvn test
+#	Test	Validates
+1	AgentOrchestratorTest — route	Correct agent for intent
+2	AgentOrchestratorTest — unknown	Graceful error
+3	InventoryAgentTest — plan	Correct tools listed
+4	InventoryAgentTest — synthesize	Valid ActionPlan
+5	PurchasingAgentTest — synthesize	Typed PO draft
+6	PromptRegistryServiceTest — create	Auto-increment version
+7	PromptRegistryServiceTest — active	Latest active returned
+8	PromptVersioningTest — rollback	Previous version activated
+9	DecisionLogServiceTest — log	Full provenance persisted
+10	ToolRegistryTest — find	Finds by name
+11	StockQueryToolTest — typed	Validates input, typed output
+12	InMemoryEventBusTest — pub/sub	Typed event delivered
+13	PolicyEngineTest — blocks	Rejects unapproved action
+14	PolicyEngineTest — spending	Blocks over-limit without ADMIN
+15	GoldenPromptTest — regression	Fixed context → valid schema output
+Integration Tests (≥3) — mvn verify
+#	Test	Validates
+1	AgentEndpointIntegrationTest	POST → response with auditId (Testcontainers)
+2	PromptRegistryIntegrationTest	CRUD + versioning + rollback on Postgres
+3	DecisionLogIntegrationTest	Persist + query with structured tool_calls/policies
+5 — Flyway Migrations
+V1__core_schema.sql — products, stocks, stock_movements, purchase_orders, purchase_order_items
+V2__prompt_schema.sql — prompt_templates (with status, effectiveFrom, changeNote)
+V3__audit_schema.sql — decision_logs, decision_tool_calls, decision_policy_results
+V4__execution_schema.sql — executed_actions (idempotency table)
+
+Meu prompt:
+
+1) Falta uma camada explícita de Policy/Guardrails (obrigatório em IA-first)
+
+Hoje “Governance” está como DecisionLog + AuditTrail. Isso é necessário, mas não suficiente.
+
+Sugestão: adicionar uma camada ou módulo:
+
+policy/ ou guardrails/
+
+PolicyEngine que valida o ActionPlan antes de qualquer execução/aprovação.
+
+Exemplos de políticas:
+
+“não permitir EXECUTE sem aprovação”
+
+“não permitir compra acima de X sem role ADMIN”
+
+“não permitir sugestão sem evidências mínimas”
+
+“bloquear ação se dado estiver incompleto (ex.: sem lead time)”
+
+Isso vira o “freio ABS” do sistema.
+
+📌 Mudança no diagrama: inserir Policy Engine entre Agent Orchestrator e Transactional Core.
+
+2) Seu /agent precisa de um contrato de resposta determinístico (não “Object”)
+
+Você descreveu Object execute(Map…) e AgentResponse com campos livres. Funciona no começo, mas depois vira caos.
+
+Sugestão:
+
+Padronize um ActionPlan DSL estável (JSON Schema).
+
+PlannedAction deve ter: type, params, risk, requiresApproval, idempotencyKey.
+
+Exemplo:
+
+{
+  "actions":[
+    {
+      "type":"DRAFT_PURCHASE_ORDER",
+      "params":{"supplierId":"...", "items":[...]},
+      "requiresApproval":true,
+      "risk":"MEDIUM",
+      "idempotencyKey":"..."
+    }
+  ]
+}
+
+
+Isso reduz alucinação e facilita auditoria e execução.
+
+3) “Tooling” precisa ser typed e com validação (evita 80% dos bugs)
+
+Object execute(Map<String,Object>) é muito flexível e vai dar bug na primeira semana.
+
+Sugestão:
+
+Cada tool ter:
+
+InputDTO + OutputDTO
+
+validação Bean Validation (@Valid)
+
+E uma camada ToolExecutor que:
+
+valida input
+
+registra no DecisionLog o “tool call”
+
+aplica timeouts
+
+4) Você precisa de um Context Assembler separado do Orchestrator
+
+Você já citou “context assembly”, mas está dentro do AgentOrchestrator. Isso cresce muito.
+
+Sugestão:
+Criar context/:
+
+ContextAssembler (por intent/agent)
+
+Evidence como objeto forte (fonte, query, timestamp, payload resumido)
+
+ContextSnapshot persistível (opcional)
+
+Isso torna repetível e testável “quais dados foram usados”.
+
+5) Seus agentes: cuidado para não virar “agente chama LLM e pronto”
+
+Agente IA-first bom não é só “manda prompt no LLM”.
+
+Sugestão (pequena, mas forte):
+Cada AgentDefinition deveria retornar um plano de execução em 2 passos:
+
+Plan: que ferramentas consultar e que dados precisa
+
+Synthesize: depois que tem evidência, montar resposta + action plan
+
+Mesmo que você implemente isso de forma simples agora, o contrato já evita vício.
+
+6) Event Bus: sugiro definir event types e schema já no MVP
+
+Você tem DomainEvent, mas sem “contrato” de evento, Kafka vira “string solta”.
+
+Sugestão:
+
+event/model/ com eventos explícitos:
+
+StockLevelChanged
+
+PurchaseOrderDrafted
+
+DecisionApproved
+
+Cada um com versão: eventVersion
+
+7) Core transacional: PurchaseOrder.items as JSON é ok no MVP, mas…
+
+Para MVP, ok. Mas se você quer ERP sério, isso vira gargalo (consulta, relatórios, validação).
+
+Sugestão: manter por enquanto, mas já deixar no plano:
+
+purchase_order_items normalizada
+
+e deixar o JSON só para “snapshot”/auditoria
+
+8) Segurança: faltou “Execution permissions” por ação
+
+JWT + RBAC está bom, mas o IA-first precisa de uma regra extra:
+
+permissão por tipo de ação (DRAFT_PO, APPROVE_PO, EXECUTE_STOCK_ADJUST, etc.)
+
+e logs de “quem aprovou o quê”
+
+Isso evita o sistema virar “qualquer operador consegue disparar qualquer coisa”.
+
+9) LLM Provider: inclua timeout / retry / circuit breaker desde o início
+
+Não precisa inventar moda: só garanta que você não trava o ERP porque o LLM ficou lento.
+
+Sugestão:
+
+timeouts curtos
+
+retry só em erros transitórios
+
+fallback de mensagem clara (“não consegui completar, dados insuficientes…”)
+
+10) Testes: adicione 2 tipos que fazem diferença
+
+Seu plano de testes está bom. Eu adicionaria:
+
+Golden tests de prompt (regressão de comportamento)
+
+dado um contexto fixo + prompt fixo → saída esperada (ou pelo menos schema válido)
+
+Policy tests (quando você criar PolicyEngine)
+
+garante que ações proibidas são bloqueadas
+
+Mudanças mínimas no seu plano (resumo)
+
+Se você quiser mexer pouco e ganhar muito, faça só isto:
+
+Adicionar PolicyEngine (guardrails)
+
+Formalizar ActionPlan typed + schema
+
+Separar ContextAssembler + Evidence
+
+Tooling typed + validação
+
+Isso mantém seu MVP simples, mas “enterprise-ready”.
+
+Como eu reescreveria seu diagrama (só a diferença)
+
+AgentOrchestrator → chama ContextAssembler
+
+AgentOrchestrator → gera ActionPlan
+
+PolicyEngine → valida ActionPlan
+
+DecisionLog registra tudo (prompt + evidências + tool calls + policies)
+
+Se você aplicar essas 4–5 mudanças, seu plano vira “MVP compilável” sem virar Frankenstein quando você começar a colocar regras reais (estoque mínimo, limite de capital, sazonalidade, auditoria e permissões por loja)
+
+Resposta do Claude:
+
+Thought for 4s
+The user has provided excellent feedback on my implementation plan. Let me update the plan to incorporate all 10 suggestions. Let me enter PLANNING mode and update the implementation plan.
+
+Planning AI-First ERP Architecture
+Rewrote implementation plan v2 incorporating all 10 feedback items: PolicyEngine guardrails, typed ActionPlan DSL, typed Tooling with Bean Validation, ContextAssembler with Evidence, Plan/Synthesize agent lifecycle, typed domain events, normalized PO items, action-level permissions, LLM resilience, golden/policy tests.
+
+Files Edited Implementation Plan
+
+Progress Updates
+1. Updating implementation plan with all 10 user feedback items
+
+Excelente feedback. Vou reescrever o plano incorporando todas as 10 mudanças.
+
+Edited Implementation Plan
+The file got truncated because I used too much content. Let me write the complete plan properly:
+
+Edited Implementation Plan
+Now let me update the task and notify the user:
+
+2. Requesting user review of revised v2 plan
+
+Plano v2 reescrito com todas as 10 mudanças incorporadas:
+
+✅ PolicyEngine — camada de guardrails entre Orchestrator e Core, com 3 rules no MVP (ApprovalRequiredRule, SpendingLimitRule, EvidenceRequiredRule)
+✅ ActionPlan DSL tipado — PlannedAction com ActionType enum, RiskLevel, requiresApproval, idempotencyKey
+✅ Tooling tipado — AgentTool<I, O> genérico + ToolExecutor com Bean Validation, logging e timeout
+✅ ContextAssembler separado — Evidence tipada (source, query, timestamp, payload) + ContextSnapshot
+✅ Plan → Synthesize — AgentDefinition com duas fases explícitas
+✅ Eventos tipados — StockLevelChanged, PurchaseOrderDrafted, DecisionApproved com eventVersion
+✅ PO items normalizados — PurchaseOrderItem como entidade separada, JSON snapshot só no audit
+✅ Permissões por ação — ActionPermission enum mapeado a roles, approvedBy no DecisionLog
+✅ LLM resiliente — timeout, retry com backoff, circuit-breaker, fallback
+✅ Golden tests + Policy tests — regressão de prompt + validação de regras de bloqueio
+Diagrama e estrutura de pastas atualizados. Revise e confirme para eu começar a implementação.
+
+
+implementation_plan.md
+Final v3 implementation plan for AI-first ERP. Incorporates all feedback: v1→v2 (PolicyEngine, typed ActionPlan, typed Tooling, ContextAssembler, Plan/Synthesize, typed events, PO normalization, action permissions, LLM resilience, golden tests) + v2→v3 (explicit approve/execute endpoints, ActionExecutor with idempotency, structured tool_call/policy tables, typed ActionParams DTOs, LLM output contract validation, Correlation ID end-to-end, multi-tenant scope preparation, PromptTemplate lifecycle status).
+
+Meu prompt: 
+
+O v2 ficou bem redondo. Do jeito que está, já dá para construir um “núcleo IA-first” sério sem cair em CRUD-ERP disfarçado.
+
+Dá para melhorar mais algumas coisas, mas agora são ajustes de maturidade e prevenção de dor futura (não mudanças de rumo). Eu faria 8 melhorias:
+
+1) Separar “Sugerir” de “Executar” com endpoints explícitos (evita acidente)
+
+Hoje o /agent devolve ActionPlan e você fala em aprovação, mas não está explícito no plano como isso vira fluxo de execução.
+
+Sugestão:
+
+POST /api/v1/agent → retorna ActionPlan + auditId
+
+POST /api/v1/actions/{auditId}/approve → registra aprovador e gera evento DecisionApproved
+
+POST /api/v1/actions/{auditId}/execute → executa transações determinísticas (idempotente)
+
+Isso deixa impossível “executar sem querer” e fica mais auditável.
+
+2) Criar um Execution Engine (com idempotência real e transação)
+
+Hoje o PolicyEngine valida, mas quem executa as ações? Se ficar dentro do core services “na mão”, vira bagunça quando ações crescerem.
+
+Sugestão:
+Adicionar execution/:
+
+ActionExecutor (roteia ActionType -> handler)
+
+ActionHandlers (um por ação: DraftPurchaseOrderHandler, etc.)
+
+ExecutionResult (SUCCESS/FAILED + outputs)
+
+idempotency: tabela executed_actions com (idempotencyKey, status, executedAt, auditId)
+
+3) Persistir tool calls e context snapshot de forma estruturada (não só JSON)
+
+Você colocou tool_calls e policies_applied no DecisionLog. Ótimo. Mas quando for depurar, você vai querer filtrar: “quais decisões chamaram StockQueryTool” ou “quais falharam por EvidenceRequiredRule”.
+
+Sugestão mínima:
+
+decision_log_tool_calls (1:N)
+
+decision_log_policies (1:N)
+
+context_snapshots (opcional) ou armazenar Evidence em tabela.
+
+Mesmo que o payload continue em JSONB, o cabeçalho estruturado faz milagre.
+
+4) Trocar Map<String,Object> params do PlannedAction por DTOs por ActionType
+
+Você tipou tools, mas o ActionPlan ainda usa Map. Isso vai te dar os mesmos problemas (validação, schema, compatibilidade).
+
+Sugestão:
+
+PlannedAction<T extends ActionParams>
+
+Um DTO por ação:
+
+DraftPurchaseOrderParams
+
+AdjustStockParams
+
+etc.
+
+validação com Bean Validation
+
+JSON schema por tipo
+
+Se quiser manter simples no MVP: Map só no transporte, mas internamente converter para DTO.
+
+5) Adicionar “Model Output Contract” (JSON Schema) + validação automática no LLM step
+
+O Golden test já ajuda, mas o runtime precisa bloquear resposta “fora do contrato”.
+
+Sugestão:
+
+A LLM deve produzir um objeto estritamente validável (ex.: AgentSynthesisOutput)
+
+Validar com:
+
+Jackson + Bean Validation (rápido)
+
+ou um JSON Schema validator
+
+Se falhar:
+
+registrar no DecisionLog “OUTPUT_INVALID”
+
+pedir “repair” (uma tentativa) ou retornar erro seguro ao usuário
+
+Isso reduz alucinação na prática.
+
+6) Observabilidade: incluir Correlation ID end-to-end (desde já)
+
+Sem isso, você não consegue rastrear: request → tools → LLM → policy → decision log → events.
+
+Sugestão:
+
+X-Correlation-Id no request (gerar se não vier)
+
+propagar para logs, DecisionLog, events, tool calls
+
+MDC (Mapped Diagnostic Context) no SLF4J
+
+7) Multi-tenant/Store scope (mesmo que você não implemente tudo agora)
+
+Como você pensa em lojas/estoques, vai precisar de “escopo” cedo.
+
+Sugestão:
+
+AgentRequest deve ter tenantId/companyId e storeId/warehouse
+
+Evidence e políticas também
+
+permissões por escopo (ex.: OPERATOR da loja X não aprova loja Y)
+
+Mesmo que seja “hardcoded 1 tenant” no MVP, já deixa o contrato preparado.
+
+8) PromptRegistry: incluir “effectiveFrom” + status (DRAFT/ACTIVE/DEPRECATED)
+
+Versionar é ótimo, mas em empresa você quer:
+
+ativação programada
+
+“deprecated” sem deletar
+
+rollback seguro
+
+Sugestão de campos:
+
+status (DRAFT, ACTIVE, DEPRECATED)
+
+effectiveFrom, effectiveTo (opcional)
+
+changeNote (por que mudou)
+
+Micro-ajuste: seu “7 layers” na verdade virou 9 itens
+
+No v2 você diz “7 Layers”, mas lista mais (inclui Event Bus e Governance). Só ajuste o texto para bater.
+
+Se você quiser manter MVP enxuto: faça só 3 melhorias agora
+
+Se a meta é entregar rápido sem crescer escopo:
+
+Endpoints approve/execute + Execution Engine com idempotency
+
+Validar saída da LLM contra contrato (schema/DTO)
+
+Correlation ID end-to-end
+
+Essas três evitam os piores “incêndios” quando você colocar isso em uso real.
+
+Seu v2 já está no caminho certo; com esses ajustes, ele vira um blueprint bem “enterprise-grade” sem inflar demais.
+
+Resposta do Claude:
+
+The user approved v2 and suggested 8 more improvements, recommending at minimum 3 critical ones for MVP. Let me update the plan to v3 incorporating all 8 improvements, then proceed to execution. The user seems ready for implementation.
+
+The user approved v2 and suggested 8 more improvements, recommending at minimum 3 critical ones for MVP. Let me update the plan to v3 incorporating all 8 improvements, then proceed to execution. The user seems ready for implementation.
+
+Files Edited Implementation Plan
+
+Progress Updates
+1. Incorporating 8 maturity improvements into final v3 plan
+
+Edited Implementation Plan
+
+Plano v3 (final) atualizado com todas as 8 melhorias de maturidade:
+
+✅ Endpoints explícitos — POST /agent (sugerir) → POST /actions/{id}/approve → POST /actions/{id}/execute
+✅ Execution Engine — ActionExecutor com roteamento por ActionType, handlers tipados, tabela executed_actions com idempotência real
+✅ Audit estruturado — tabelas decision_tool_calls e decision_policy_results (1:N), filtráveis
+✅ ActionParams tipados — PlannedAction<T extends ActionParams> com DTOs por ação + Bean Validation
+✅ LLM Output Validator — valida saída do LLM contra contrato (parse + Bean Validation), repair 1x ou fail-safe
+✅ Correlation ID — CorrelationIdFilter → MDC → propaga para logs, DecisionLog, Events, ToolCalls
+✅ Multi-tenant scope — tenantId + storeId no AgentRequest (hardcoded 1 no MVP, contrato pronto)
+✅ PromptTemplate lifecycle — status (DRAFT/ACTIVE/DEPRECATED) + effectiveFrom + changeNote
+Arquitetura agora com 9 camadas corretas no diagrama. 4 migrações Flyway. 15+ testes unitários + 3 integração.
+
+Confirme para eu iniciar a implementação (Fase 2+3 do projeto).
+
+
+implementation_plan.md
+Final v3 implementation plan for AI-first ERP. Incorporates all feedback: v1→v2 (PolicyEngine, typed ActionPlan, typed Tooling, ContextAssembler, Plan/Synthesize, typed events, PO normalization, action permissions, LLM resilience, golden tests) + v2→v3 (explicit approve/execute endpoints, ActionExecutor with idempotency, structured tool_call/policy tables, typed ActionParams DTOs, LLM output contract validation, Correlation ID end-to-end, multi-tenant scope preparation, PromptTemplate lifecycle status).
+
+
 Thought for 7s
-
-
-
 
 The user approved the v3 plan. Time to start implementation. This is a massive coding task. Let me update the task.md and start executing.
 

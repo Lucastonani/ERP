@@ -41,8 +41,11 @@ C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\event\model\DecisionApp
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\event\model\PurchaseOrderDrafted.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\event\model\StockLevelChanged.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\execution\ActionExecutor.java
+C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\execution\ActionHandler.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\execution\ExecutedActionRepository.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\execution\ExecutionResult.java
+C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\execution\handler\AdjustStockHandler.java
+C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\execution\handler\DraftPurchaseOrderHandler.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\execution\model\ExecutedAction.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\llm\CloudLlmProvider.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\llm\LlmOutputValidator.java

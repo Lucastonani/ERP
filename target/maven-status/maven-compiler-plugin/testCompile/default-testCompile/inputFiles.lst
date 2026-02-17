@@ -6,7 +6,10 @@ C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\agent\PurchasingAgentTe
 C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\context\ContextSnapshotTest.java
 C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\core\CoreModelTest.java
 C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\event\InMemoryEventBusTest.java
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\execution\AdjustStockHandlerTest.java
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\execution\DraftPurchaseOrderHandlerTest.java
 C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\integration\AgentLifecycleIntegrationTest.java
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\integration\PostgresIntegrationTest.java
 C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\llm\LlmOutputValidatorTest.java
 C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\policy\PolicyEngineTest.java
 C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\prompt\PromptTemplateTest.java

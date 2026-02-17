@@ -1,6 +1,7 @@
 package com.erp.ia.execution;
 
 import com.erp.ia.agent.model.ActionPlan;
+import com.erp.ia.agent.model.ActionType;
 import com.erp.ia.agent.model.PlannedAction;
 import com.erp.ia.audit.DecisionLogService;
 import com.erp.ia.audit.model.DecisionLog;
@@ -12,11 +13,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Execution Engine — executes approved ActionPlans with idempotency guarantee.
- * Routes ActionType → handler. Wraps everything in a transaction.
+ * Routes ActionType → ActionHandler dynamically. Wraps everything in a
+ * transaction.
  */
 @Service
 public class ActionExecutor {
@@ -26,13 +30,24 @@ public class ActionExecutor {
     private final ExecutedActionRepository executedActionRepository;
     private final DecisionLogService decisionLogService;
     private final ObjectMapper objectMapper;
+    private final Map<ActionType, ActionHandler> handlerMap;
 
     public ActionExecutor(ExecutedActionRepository executedActionRepository,
             DecisionLogService decisionLogService,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            List<ActionHandler> handlers) {
         this.executedActionRepository = executedActionRepository;
         this.decisionLogService = decisionLogService;
         this.objectMapper = objectMapper;
+        this.handlerMap = new EnumMap<>(ActionType.class);
+        handlers.forEach(h -> {
+            ActionHandler previous = handlerMap.put(h.getActionType(), h);
+            if (previous != null) {
+                log.warn("Duplicate ActionHandler for {}: {} replaces {}",
+                        h.getActionType(), h.getClass().getSimpleName(), previous.getClass().getSimpleName());
+            }
+            log.info("Registered ActionHandler: {} → {}", h.getActionType(), h.getClass().getSimpleName());
+        });
     }
 
     /**
@@ -69,14 +84,17 @@ public class ActionExecutor {
                 continue;
             }
 
+            // Dispatch to registered handler
             ExecutionResult result;
-            try {
-                // In a full implementation, this would route to specific ActionHandlers
-                log.info("Executing action: {} [key={}]", action.getType(), action.getIdempotencyKey());
-                result = ExecutionResult.success(action.getType().name(),
-                        "Action " + action.getType() + " executed successfully", action.getParams());
-            } catch (Exception e) {
-                result = ExecutionResult.failed(action.getType().name(), e.getMessage());
+            ActionHandler handler = handlerMap.get(action.getType());
+            if (handler != null) {
+                log.info("Dispatching action {} [key={}] to {}",
+                        action.getType(), action.getIdempotencyKey(), handler.getClass().getSimpleName());
+                result = handler.handle(action, auditId, executedBy);
+            } else {
+                log.warn("No ActionHandler registered for type: {}", action.getType());
+                result = ExecutionResult.failed(action.getType().name(),
+                        "No handler registered for action type: " + action.getType());
             }
 
             // Record execution

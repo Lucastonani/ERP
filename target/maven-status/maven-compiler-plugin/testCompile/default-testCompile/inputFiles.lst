@@ -1,0 +1,12 @@
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\agent\AgentOrchestratorTest.java
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\agent\AgentRegistryTest.java
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\agent\InventoryAgentTest.java
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\agent\model\ActionPlanTest.java
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\agent\PurchasingAgentTest.java
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\context\ContextSnapshotTest.java
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\core\CoreModelTest.java
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\event\InMemoryEventBusTest.java
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\integration\AgentLifecycleIntegrationTest.java
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\llm\LlmOutputValidatorTest.java
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\policy\PolicyEngineTest.java
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\prompt\PromptTemplateTest.java

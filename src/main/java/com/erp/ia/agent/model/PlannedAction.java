@@ -1,5 +1,6 @@
 package com.erp.ia.agent.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Map;
 import java.util.UUID;
 
@@ -10,6 +11,7 @@ import java.util.UUID;
 public class PlannedAction {
 
     private ActionType type;
+    @Schema(description = "Action parameters (arbitrary key-value pairs)")
     private Map<String, Object> params;
     private RiskLevel risk;
     private boolean requiresApproval;

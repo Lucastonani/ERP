@@ -1,5 +1,6 @@
 package com.erp.ia.audit.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.Instant;
 
@@ -11,6 +12,7 @@ public class DecisionPolicyResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "decision_log_id", nullable = false)
     private DecisionLog decisionLog;

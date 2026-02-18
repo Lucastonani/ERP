@@ -1,5 +1,6 @@
 package com.erp.ia.agent.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -53,7 +54,7 @@ public record LlmAgentOutput(
 
             @NotNull(message = "Action type is required") String type,
 
-            Map<String, Object> params,
+            @Schema(description = "Action parameters (arbitrary JSON)") Map<String, Object> params,
 
             String risk,
 

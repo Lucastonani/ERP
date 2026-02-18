@@ -1,5 +1,7 @@
 package com.erp.ia.audit.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import java.time.Instant;
 
@@ -11,6 +13,7 @@ public class DecisionToolCall {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "decision_log_id", nullable = false)
     private DecisionLog decisionLog;
@@ -18,9 +21,11 @@ public class DecisionToolCall {
     @Column(name = "tool_name", nullable = false, length = 100)
     private String toolName;
 
+    @Schema(description = "Arguments passed to the tool (JSON)")
     @Column(name = "input_json", columnDefinition = "TEXT")
     private String inputJson;
 
+    @Schema(description = "Result returned by the tool (JSON)")
     @Column(name = "output_json", columnDefinition = "TEXT")
     private String outputJson;
 

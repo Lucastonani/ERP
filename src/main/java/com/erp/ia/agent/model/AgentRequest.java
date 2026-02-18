@@ -1,5 +1,6 @@
 package com.erp.ia.agent.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Map;
 
 /**
@@ -7,7 +8,7 @@ import java.util.Map;
  */
 public record AgentRequest(
         String intent,
-        Map<String, Object> context,
+        @Schema(description = "Context variables (arbitrary key-value pairs)") Map<String, Object> context,
         String tenantId,
         String storeId,
         String correlationId,

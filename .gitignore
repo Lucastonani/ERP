@@ -1,0 +1,28 @@
+# Compiled
+target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Maven
+*.jar
+*.war
+dependency-reduced-pom.xml
+
+# Logs
+*.log
+
+# Secrets — NUNCA commitar
+.env
+env.properties
+
+# Docker
+.docker-java.properties
+.testcontainers.properties

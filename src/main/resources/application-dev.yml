@@ -19,7 +19,7 @@ llm:
     model: llama3
   cloud:
     base-url: https://api.openai.com/v1
-    api-key: ${LLM_API_KEY}
+    api-key: ${LLM_API_KEY:}
     model: gpt-4o
   timeout-connect: 5s
   timeout-read: 30s

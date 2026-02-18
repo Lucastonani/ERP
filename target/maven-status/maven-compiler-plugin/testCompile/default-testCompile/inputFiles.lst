@@ -13,3 +13,5 @@ C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\integration\PostgresInt
 C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\llm\LlmOutputValidatorTest.java
 C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\policy\PolicyEngineTest.java
 C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\prompt\PromptTemplateTest.java
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\web\ActionControllerTest.java
+C:\Users\lucas\IdeaProjects\ERP\src\test\java\com\erp\ia\web\AgentControllerTest.java

@@ -15,6 +15,7 @@ import com.erp.ia.prompt.PromptRegistryService;
 import com.erp.ia.prompt.model.PromptTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.transaction.annotation.Transactional;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -123,6 +124,7 @@ class PostgresIntegrationTest {
     // ────────────────────────────────────────────────────────────────
 
     @Test
+    @Transactional
     void fullLifecycleWithRealPostgres() {
         // 1. Suggest
         AgentRequest request = new AgentRequest(

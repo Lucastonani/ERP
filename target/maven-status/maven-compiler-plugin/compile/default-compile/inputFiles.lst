@@ -9,6 +9,7 @@ C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\agent\model\ActionType.
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\agent\model\AgentPlan.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\agent\model\AgentRequest.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\agent\model\AgentResponse.java
+C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\agent\model\LlmAgentOutput.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\agent\model\PlannedAction.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\agent\model\RiskLevel.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\audit\DecisionLogRepository.java
@@ -17,6 +18,7 @@ C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\audit\model\DecisionLog
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\audit\model\DecisionPolicyResult.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\audit\model\DecisionToolCall.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\config\CorrelationIdFilter.java
+C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\config\OpenApiConfig.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\config\SecurityConfig.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\context\ContextAssembler.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\context\ContextSnapshot.java
@@ -67,3 +69,4 @@ C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\tool\ToolExecutor.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\tool\ToolRegistry.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\web\ActionController.java
 C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\web\AgentController.java
+C:\Users\lucas\IdeaProjects\ERP\src\main\java\com\erp\ia\web\GlobalExceptionHandler.java

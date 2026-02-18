@@ -5,6 +5,8 @@ import com.erp.ia.agent.model.AgentRequest;
 import com.erp.ia.agent.model.AgentResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.slf4j.MDC;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +27,7 @@ public class AgentController {
 
     @PostMapping
     @Operation(summary = "Process an intent", description = "Receives a natural-language intent and returns a structured response with action plan and audit ID")
-    public ResponseEntity<AgentResponse> processIntent(@RequestBody IntentRequest request) {
+    public ResponseEntity<AgentResponse> processIntent(@Valid @RequestBody IntentRequest request) {
         String correlationId = MDC.get("correlationId");
         if (correlationId == null) {
             correlationId = UUID.randomUUID().toString();
@@ -44,10 +46,10 @@ public class AgentController {
     }
 
     public record IntentRequest(
-            String intent,
+            @NotBlank(message = "Intent é obrigatório") String intent,
             Map<String, Object> context,
             String tenantId,
             String storeId,
-            String user) {
+            @NotBlank(message = "Usuário é obrigatório") String user) {
     }
 }

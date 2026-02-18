@@ -54,6 +54,10 @@ public class DecisionLogService {
         return repository.findByAgentNameOrderByCreatedAtDesc(agentName, pageable);
     }
 
+    public Page<DecisionLog> findAll(Pageable pageable) {
+        return repository.findAll(pageable);
+    }
+
     @Transactional
     public DecisionLog approve(String decisionId, String approvedBy) {
         DecisionLog log = repository.findById(decisionId)

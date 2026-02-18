@@ -26,4 +26,13 @@ public interface AgentDefinition {
 
     /** Phase 2: given assembled context, produce the response + action plan. */
     AgentResponse synthesize(AgentRequest request, ContextSnapshot context);
+
+    /**
+     * Whether this agent should use the LLM for synthesize.
+     * Default true. Override to false for pure-query agents
+     * that don't need AI reasoning.
+     */
+    default boolean usesLlm() {
+        return true;
+    }
 }

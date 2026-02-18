@@ -215,6 +215,10 @@ public class DecisionLog {
         return createdAt;
     }
 
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public List<DecisionToolCall> getToolCalls() {
         return toolCalls;
     }

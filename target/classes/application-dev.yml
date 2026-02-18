@@ -13,13 +13,13 @@ spring:
 
 # LLM provider config (dev uses ollama by default)
 llm:
-  provider: ollama
+  provider: cloud
   ollama:
     base-url: http://localhost:11434
     model: llama3
   cloud:
     base-url: https://api.openai.com/v1
-    api-key: ${LLM_API_KEY:your-key-here}
+    api-key: ${LLM_API_KEY}
     model: gpt-4o
   timeout-connect: 5s
   timeout-read: 30s
